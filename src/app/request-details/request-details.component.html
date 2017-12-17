@@ -1,0 +1,37 @@
+<p>
+  request-details works!
+</p>
+
+<h3 class="text-center">Request Details</h3>
+
+<!-- We are going to get an array of requests stored in the requests variable. We'll loop over that variable here using the ngFor directive -->
+<div class="col-sm-4" *ngFor="let request of requests">
+  <div class="panel panel-default">
+    <div class="panel-heading">
+      <h3 class="panel-title">{{ request.requestName }}</h3>
+    </div>
+    <div class="panel-body">
+      {{ requestName.shortDescription }}
+    </div>
+    
+  </div>
+</div>
+
+<!-- We are going to use the authService.loggedIn() method to see if the user is logged in or not. If they are not logged in we'll encourage them to login, otherwise if they are logged in, we'll provide a handy link to private deals. We haven't implemented the authService yet, so don't worry about the functionality just yet -->
+<div class="col-sm-12" *ngIf="!authService.authenticated">
+  <div class="jumbotron text-center">
+    <h2>Get More Requests By Logging In</h2>
+  </div>
+</div>
+
+<div class="col-sm-12" *ngIf="authService.authenticated">
+  <div class="jumbotron text-center">
+    <h2>View Requests</h2>
+    <a class="btn btn-lg btn-success" routerLink="/requests">Requests</a>
+  </div>
+</div>
+
+<!-- If an error occurs, we'll show an error message -->
+<div class="col-sm-12 alert alert-danger" *ngIf="error">
+  <strong>Oops!</strong> An error occurred fetching data. Please try again.
+</div>
