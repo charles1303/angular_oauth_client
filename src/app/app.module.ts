@@ -18,6 +18,7 @@ import { DashboardComponent } from './dashboard/dashboard.component';
 import { CanActivateGuard } from './auth/can-activate.guard';
 import {ErrorLogService} from './service/error-log.service';
 import {GlobalErrorHandlerService} from './service/global-error-handler.service';
+import {LocalForageModule} from 'ngx-localforage';
 
 
 @NgModule({
@@ -34,7 +35,8 @@ import {GlobalErrorHandlerService} from './service/global-error-handler.service'
     BrowserModule,
     AppRoutingModule,
     HttpClientModule,
-    FormsModule
+    FormsModule,
+    LocalForageModule.forRoot()
   ],
   providers: [AuthService, AuthenticationService, CanActivateGuard, ErrorLogService, GlobalErrorHandlerService],
   bootstrap: [AppComponent]

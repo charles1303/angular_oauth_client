@@ -3,6 +3,7 @@ import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import * as auth0 from 'auth0-js';
 import { AUTH_CONFIG } from './auth-config';
 import { Router } from '@angular/router';
+import { LocalForageService } from 'ngx-localforage';
 
 @Injectable()
 export class AuthService {
@@ -22,11 +23,13 @@ export class AuthService {
   loggedIn: boolean;
   loggedIn$ = new BehaviorSubject<boolean>(this.loggedIn);
 
-  constructor(private router: Router) { 
+  constructor(private router: Router, private localForage: LocalForageService) { 
     // If authenticated, set local profile property and update login status subject
-    // If token is expired, log out to clear any data from localStorage
+    // If token is expired, log out to clear any data from localForage
     if (this.authenticated) {
-      this.userProfile = JSON.parse(localStorage.getItem('profile'));
+      localForage.getItem('profile').subscribe(function(value) {
+        this.userProfile = value;
+    });
       this.setLoggedIn(true);
     } else {
       this.logout();
@@ -35,8 +38,12 @@ export class AuthService {
 
   get authenticated(): boolean {
     // Check if current date is greater than expiration
-    const expiresAt = JSON.parse(localStorage.getItem('expires_at'));
-    return Date.now() < expiresAt;
+    let isExpires: boolean;
+    this.localForage.getItem('expires_at').subscribe(function(value) {
+      isExpires = Date.now() < value;
+
+  });
+    return isExpires;
   }
 
   setLoggedIn(value: boolean) {
@@ -47,10 +54,10 @@ export class AuthService {
 
   logout() {
     // Remove tokens and profile and update login status subject
-    localStorage.removeItem('token');
-    localStorage.removeItem('id_token');
-    localStorage.removeItem('profile');
-    localStorage.removeItem('expires_at');
+    this.localForage.removeItem('token');
+    this.localForage.removeItem('id_token');
+    this.localForage.removeItem('profile');
+    this.localForage.removeItem('expires_at');
     this.userProfile = undefined;
     this.setLoggedIn(false);
   }
@@ -83,10 +90,10 @@ export class AuthService {
   private _setSession(authResult, profile) {
     const expTime = authResult.expiresIn * 1000 + Date.now();
     // Save session data and update login status subject
-    localStorage.setItem('token', authResult.accessToken);
-    localStorage.setItem('id_token', authResult.idToken);
-    localStorage.setItem('profile', JSON.stringify(profile));
-    localStorage.setItem('expires_at', JSON.stringify(expTime));
+    this.localForage.setItem('token', authResult.accessToken);
+    this.localForage.setItem('id_token', authResult.idToken);
+    this.localForage.setItem('profile', JSON.stringify(profile));
+    this.localForage.setItem('expires_at', JSON.stringify(expTime));
     this.userProfile = profile;
     this.setLoggedIn(true);
   }
